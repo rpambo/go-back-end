@@ -8,14 +8,24 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
+	"github.com/rpambo/go-back-end/internal/store"
 )
 
 type application struct {
 	config config
+	store store.Storage
 }
 
 type config struct {
-	addr string
+	addr	string
+	db		dbConfig	
+}
+
+type dbConfig struct {
+	addr			string
+	maxOpenConns	int
+	maxIdleConns	int
+	maxIdleTimes	string
 }
 
 func (a *application) mount() http.Handler {
