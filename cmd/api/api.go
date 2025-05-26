@@ -56,6 +56,9 @@ func (a *application) run(mux http.Handler) error {
 	srv := http.Server{
 		Addr: a.config.addr,
 		Handler: mux,
+		ReadTimeout:  time.Second * 30,
+		WriteTimeout: time.Second * 10,
+		IdleTimeout: time.Minute,
 	}
 
 	fmt.Printf("server listen %v", a.config.addr)

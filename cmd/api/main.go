@@ -1,11 +1,16 @@
 package main
 
-import "log"
+import (
+	"log"
+
+	"github.com/rpambo/go-back-end/internal/env"
+)
 
 func main(){
 	cnf := config{
-		addr: ":8080",
+		addr: env.GetString("ADDR", ":8080"),
 	}
+	
 	app := application{
 		config: cnf,
 	}
