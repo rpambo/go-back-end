@@ -9,11 +9,13 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/rpambo/go-back-end/internal/store"
+	"go.uber.org/zap"
 )
 
 type application struct {
 	config config
 	store store.Storage
+	logger        *zap.SugaredLogger
 }
 
 type config struct {

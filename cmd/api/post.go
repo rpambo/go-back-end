@@ -6,6 +6,9 @@ import (
 	"github.com/rpambo/go-back-end/types"
 )
 
+type PostKey string
+var postCtx PostKey = "post" 
+
 func (app *application) CreatPost(w http.ResponseWriter, r *http.Request) {
 	var payload types.CreatePostPayload
 
@@ -39,4 +42,28 @@ func (app *application) CreatPost(w http.ResponseWriter, r *http.Request) {
 		app.internalServerError(w, r, err)
 		return
 	}
+}
+
+
+func (app *application) GetByIdHandler(w http.ResponseWriter, r *http.Request){
+	posts := getPostFromContext(r)
+
+	comments, err := app.store.Comments.GetPostByID(r.Context(), posts.ID)
+	if err != nil {
+		app.internalServerError(w, r, err)
+		return
+	}
+
+	posts.Comments = comments
+
+	if err := app.jsonResponse(w, http.StatusOK, posts); err != nil{
+		app.internalServerError(w, r, err)
+		return
+	}
+}
+
+func getPostFromContext(r *http.Request) (*types.Post){
+	post, _ := r.Context().Value(postCtx).(*types.Post)
+
+	return post
 }

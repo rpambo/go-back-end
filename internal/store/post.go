@@ -3,6 +3,7 @@ package store
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/lib/pq"
 	"github.com/rpambo/go-back-end/types"
@@ -33,4 +34,37 @@ func (s *PostsStore) Create(ctx context.Context, posts *types.Post) error {
 	}
 
 	return nil
+}
+
+func (s *PostsStore) GetById(ctx context.Context, id int64) (*types.Post, error){
+	query := `
+			SELECT id, user_id, content, title, create_at, update_at, tags, version
+			FROM posts
+			WHERE id = $1
+			`
+	
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	var Posts types.Post
+	err := s.db.QueryRowContext(ctx, query, id).Scan(
+		&Posts.ID,
+		&Posts.UserID,
+		&Posts.Title,
+		&Posts.CreatedAt,
+		&Posts.UpdatedAt,
+		pq.Array(&Posts.Tags),
+		&Posts.Version,
+	)
+
+	if err != nil{
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return &Posts, nil
 }
